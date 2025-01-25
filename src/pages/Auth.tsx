@@ -24,8 +24,9 @@ const Auth = () => {
       const hash = window.location.hash;
       const params = new URLSearchParams(hash.replace('#', ''));
       const type = params.get('type');
+      const access_token = params.get('access_token');
       
-      if (type === 'recovery') {
+      if (type === 'recovery' && access_token) {
         console.log("Detected reset password flow");
         setIsResetPassword(true);
         setIsLogin(false);
@@ -133,13 +134,26 @@ const Auth = () => {
 
     try {
       console.log("Attempting to reset password");
-      const { data, error } = await supabase.auth.updateUser({
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const access_token = params.get('access_token');
+
+      if (!access_token) {
+        throw new Error("No access token found in URL");
+      }
+
+      // First exchange the recovery token for a session
+      const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(access_token);
+      if (sessionError) throw sessionError;
+
+      // Now we can update the password with the new session
+      const { error: updateError } = await supabase.auth.updateUser({
         password: password
       });
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      console.log("Password reset successful:", data);
+      console.log("Password reset successful");
       toast({
         title: "Success",
         description: "Your password has been reset successfully. Please sign in with your new password.",
@@ -161,6 +175,8 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  // ... keep existing code (render method with form JSX)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
