@@ -35,35 +35,25 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return session ? <>{children}</> : <Navigate to="/auth" />;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Index />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/reset-password" element={<Auth />} />
-          <Route
-            path="/admin"
-            element={
-              <PrivateRoute>
-                <Admin />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log("App component rendered"); // Add logging to track component rendering
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/reset-password" element={<Auth />} />
+            <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
