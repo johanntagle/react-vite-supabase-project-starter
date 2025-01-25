@@ -2,10 +2,28 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import { Shield } from "lucide-react";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: hasAdminRole } = await supabase.rpc('has_role', {
+          user_id: session.user.id,
+          role: 'admin'
+        });
+        setIsAdmin(!!hasAdminRole);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -40,6 +58,16 @@ export const Navbar = () => {
             <a href="#contact" className="nav-link">
               Contact
             </a>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2"
+                onClick={() => navigate("/admin")}
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Button>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             <Button
