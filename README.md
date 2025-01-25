@@ -59,3 +59,5 @@ This project is built with .
 - Tailwind CSS
 - Supabase
 
+
+P.S. I can only offer best effort support here, unless we engage in a consulting arrangement :)
