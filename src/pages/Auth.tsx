@@ -22,14 +22,24 @@ const Auth = () => {
   useEffect(() => {
     // Check if we're on the reset password route
     const hash = window.location.hash;
-    const isResetPasswordFlow = location.pathname.includes('reset-password') || 
-                               hash.includes('type=recovery');
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const accessToken = params.get('access_token');
+    const type = params.get('type');
+    
+    const isResetPasswordFlow = location.pathname.includes('reset-password') && 
+                               type === 'recovery' &&
+                               accessToken;
     
     if (isResetPasswordFlow) {
       console.log("Detected reset password flow");
-      setIsResetPassword(true);
-      setIsLogin(false);
-      setIsForgotPassword(false);
+      // Set the session with the recovery token
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN') {
+          setIsResetPassword(true);
+          setIsLogin(false);
+          setIsForgotPassword(false);
+        }
+      });
     }
   }, [location]);
 
@@ -139,7 +149,10 @@ const Auth = () => {
         title: "Success",
         description: "Your password has been reset successfully.",
       });
-      navigate("/");
+      
+      // Sign out after password reset to force re-login with new password
+      await supabase.auth.signOut();
+      navigate("/auth");
     } catch (error: any) {
       console.error("Password reset error:", error);
       toast({
