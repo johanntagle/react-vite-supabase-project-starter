@@ -11,7 +11,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 type UserWithRole = {
   id: string;
@@ -23,6 +35,7 @@ type UserWithRole = {
 const Admin = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserWithRole | null>(null);
 
   // Check if current user is admin
   useEffect(() => {
@@ -50,7 +63,7 @@ const Admin = () => {
     checkAdminStatus();
   }, [navigate]);
 
-  const { data: users, isLoading } = useQuery({
+  const { data: users, isLoading, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
@@ -76,19 +89,34 @@ const Admin = () => {
     },
   });
 
-  const updateUserRole = async (userId: string, newRole: "admin" | "user") => {
+  const handleDeleteUser = async (user: UserWithRole) => {
     try {
-      const { error } = await supabase
+      const { error: roleError } = await supabase
         .from("user_roles")
-        .update({ role: newRole })
-        .eq("user_id", userId);
+        .delete()
+        .eq("user_id", user.id);
 
-      if (error) throw error;
-      toast.success("User role updated successfully");
+      if (roleError) throw roleError;
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      toast.success("User deleted successfully");
+      refetch();
     } catch (error) {
-      toast.error("Failed to update user role");
-      console.error("Error updating user role:", error);
+      toast.error("Failed to delete user");
+      console.error("Error deleting user:", error);
     }
+    setUserToDelete(null);
+  };
+
+  const handleEditUser = (user: UserWithRole) => {
+    // Navigate to edit page with user ID
+    navigate(`/admin/users/${user.id}/edit`);
   };
 
   if (isAdmin === null || isLoading) {
@@ -118,17 +146,43 @@ const Admin = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.full_name || "N/A"}</TableCell>
                 <TableCell>{user.role}</TableCell>
-                <TableCell>
-                  <select
-                    className="rounded-md border p-2"
-                    value={user.role}
-                    onChange={(e) =>
-                      updateUserRole(user.id, e.target.value as "admin" | "user")
-                    }
+                <TableCell className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditUser(user)}
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setUserToDelete(user)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete {user.email}? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setUserToDelete(null)}>
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteUser(user)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
