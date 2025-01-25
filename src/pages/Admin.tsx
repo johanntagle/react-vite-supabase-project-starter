@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { UserForm } from "@/components/UserForm";
 
@@ -146,27 +145,6 @@ const Admin = () => {
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">User Management</h1>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button onClick={() => setSelectedUser(null)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add User
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>
-                {selectedUser ? "Edit User" : "Add New User"}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-4">
-              <UserForm
-                initialData={selectedUser || undefined}
-                onSuccess={handleFormSuccess}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -228,6 +206,19 @@ const Admin = () => {
           </TableBody>
         </Table>
       </div>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit User</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            <UserForm
+              initialData={selectedUser || undefined}
+              onSuccess={handleFormSuccess}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
