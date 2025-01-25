@@ -44,6 +44,7 @@ That should be enough for you to have an admin user and manage other users from 
 
 
 **Use your preferred IDE**
+
 If you're already comfortably using your own IDE, then I think you know what to do :)
 The only suggestion I have for you is to move the Supabase settings out of src/integrations/supabase/client.ts into maybe an .env file.
 
