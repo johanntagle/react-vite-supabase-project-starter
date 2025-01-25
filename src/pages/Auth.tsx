@@ -141,20 +141,17 @@ const Auth = () => {
         throw new Error("No access token found. Please use the reset link from your email.");
       }
 
-      // Set the access token in the session
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: '',
-      });
-
-      if (sessionError) throw sessionError;
-
-      // Update the password
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
-
+      // Update the password using the recovery token
+      const { data, error } = await supabase.auth.exchangeCodeForSession(accessToken);
+      
       if (error) throw error;
+      
+      // Now update the password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (updateError) throw updateError;
 
       toast({
         title: "Success",
@@ -211,6 +208,7 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Enter your new password"
+                autoComplete="new-password"
               />
             </div>
 
@@ -223,6 +221,7 @@ const Auth = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 placeholder="Confirm your new password"
+                autoComplete="new-password"
               />
             </div>
 
