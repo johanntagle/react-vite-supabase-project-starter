@@ -21,11 +21,32 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log("Attempting to sign in with:", email);
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Sign in error:", error);
+          throw error;
+        }
+        
+        console.log("Sign in successful:", data);
+        
+        // Verify profile access
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+          throw profileError;
+        }
+        
+        console.log("Profile fetch successful:", profileData);
         navigate("/");
       } else {
         const { error } = await supabase.auth.signUp({
@@ -44,10 +65,11 @@ const Auth = () => {
         });
       }
     } catch (error: any) {
+      console.error("Full error object:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
