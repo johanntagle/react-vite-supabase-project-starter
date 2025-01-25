@@ -142,16 +142,13 @@ const Auth = () => {
         throw new Error("No access token found in URL");
       }
 
-      // First exchange the recovery token for a session
-      const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(access_token);
-      if (sessionError) throw sessionError;
-
-      // Now we can update the password with the new session
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: access_token,
+        type: 'recovery',
+        new_password: password,
       });
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       console.log("Password reset successful");
       toast({
@@ -175,8 +172,6 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
-  // ... keep existing code (render method with form JSX)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
