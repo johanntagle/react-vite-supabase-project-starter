@@ -3,26 +3,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
-import { Shield } from "lucide-react";
+import { Shield, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [fullName, setFullName] = useState<string>("");
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
+    const fetchUserData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Check admin status
         const { data: hasAdminRole } = await supabase.rpc('has_role', {
           user_id: session.user.id,
           role: 'admin'
         });
         setIsAdmin(!!hasAdminRole);
+
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile?.full_name) {
+          setFullName(profile.full_name);
+        }
       }
     };
 
-    checkAdminStatus();
+    fetchUserData();
   }, []);
 
   const handleSignOut = async () => {
@@ -70,13 +89,19 @@ export const Navbar = () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              className="text-sm"
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-medium">
+                  {fullName || 'Account'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
