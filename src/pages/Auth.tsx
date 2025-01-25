@@ -142,8 +142,10 @@ const Auth = () => {
         throw new Error("No access token found in URL");
       }
 
-      const { error } = await supabase.auth.updateUser({
-        password: password
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: access_token,
+        type: 'recovery',
+        password
       });
 
       if (error) throw error;
