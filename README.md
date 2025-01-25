@@ -1,7 +1,7 @@
 
 ## Project info
 
-This is a base project that uses Supabase as the backend for authentication. This should get you started quickly and save you time and/or AI prompts.
+This is a base project that uses Supabase as the backend for authentication. This should get you started quickly and save you time and/or AI prompts. This was built using Lovable.Dev platform but can also be used outside it.
 
 What works:
 - user sign up and login
