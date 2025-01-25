@@ -45,10 +45,14 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth/reset-password" element={<Auth />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+            <Route path="/" element={<Index />} data-component="Index" />
+            <Route path="/auth/reset-password" element={<Auth />} data-component="Auth" />
+            <Route path="/auth" element={<Auth />} data-component="Auth" />
+            <Route 
+              path="/admin" 
+              element={<PrivateRoute><Admin /></PrivateRoute>} 
+              data-component="Admin" 
+            />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
