@@ -20,20 +20,21 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if we're on the reset password route
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const type = params.get('type');
-    
-    const isResetPasswordFlow = location.pathname.includes('reset-password') && 
-                               type === 'recovery';
-    
-    if (isResetPasswordFlow) {
-      console.log("Detected reset password flow");
-      setIsResetPassword(true);
-      setIsLogin(false);
-      setIsForgotPassword(false);
-    }
+    const handlePasswordReset = async () => {
+      // Check if we're on the reset password route
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const type = params.get('type');
+      
+      if (type === 'recovery') {
+        console.log("Detected reset password flow");
+        setIsResetPassword(true);
+        setIsLogin(false);
+        setIsForgotPassword(false);
+      }
+    };
+
+    handlePasswordReset();
   }, [location]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -132,26 +133,11 @@ const Auth = () => {
     }
 
     try {
-      // Get the access token from the URL
-      const hash = window.location.hash;
-      const params = new URLSearchParams(hash.replace('#', ''));
-      const accessToken = params.get('access_token');
-
-      if (!accessToken) {
-        throw new Error("No access token found. Please use the reset link from your email.");
-      }
-
-      // Update the password using the recovery token
-      const { data, error } = await supabase.auth.exchangeCodeForSession(accessToken);
-      
-      if (error) throw error;
-      
-      // Now update the password
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         password: password
       });
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       toast({
         title: "Success",
