@@ -1,20 +1,32 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if we're on the reset password route
+    if (location.pathname.includes('/reset-password')) {
+      setIsResetPassword(true);
+      setIsLogin(false);
+      setIsForgotPassword(false);
+    }
+  }, [location]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,24 +40,17 @@ const Auth = () => {
           password,
         });
         
-        if (error) {
-          console.error("Sign in error:", error);
-          throw error;
-        }
+        if (error) throw error;
         
         console.log("Sign in successful:", data);
         
-        // Verify profile access
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
           .single();
           
-        if (profileError) {
-          console.error("Profile fetch error:", profileError);
-          throw profileError;
-        }
+        if (profileError) throw profileError;
         
         console.log("Profile fetch successful:", profileData);
         navigate("/");
@@ -104,27 +109,102 @@ const Auth = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (password !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Passwords do not match",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your password has been reset successfully.",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Error resetting password",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold">
-            {isForgotPassword 
-              ? "Reset Password"
-              : isLogin 
-                ? "Sign In" 
-                : "Sign Up"}
+            {isResetPassword
+              ? "Reset Your Password"
+              : isForgotPassword 
+                ? "Reset Password"
+                : isLogin 
+                  ? "Sign In" 
+                  : "Sign Up"}
           </h2>
           <p className="text-muted-foreground mt-2">
-            {isForgotPassword
-              ? "Enter your email to receive a password reset link"
-              : isLogin
-                ? "Welcome back! Please sign in to continue."
-                : "Create an account to get started."}
+            {isResetPassword
+              ? "Enter your new password below"
+              : isForgotPassword
+                ? "Enter your email to receive a password reset link"
+                : isLogin
+                  ? "Welcome back! Please sign in to continue."
+                  : "Create an account to get started."}
           </p>
         </div>
 
-        {isForgotPassword ? (
+        {isResetPassword ? (
+          <form onSubmit={handleResetPassword} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your new password"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="Confirm your new password"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Resetting..." : "Reset Password"}
+            </Button>
+          </form>
+        ) : isForgotPassword ? (
           <form onSubmit={handleForgotPassword} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
