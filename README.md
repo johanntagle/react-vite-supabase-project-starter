@@ -61,3 +61,4 @@ This project is built with .
 
 
 P.S. I can only offer best effort support here, unless we engage in a consulting arrangement :)
+     Also, the usual disclaimers - I take no responsibility for how people will use this project and assume no liability for any damage or loss caused by its use.
