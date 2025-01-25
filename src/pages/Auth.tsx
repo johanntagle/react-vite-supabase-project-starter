@@ -133,7 +133,9 @@ const Auth = () => {
 
     try {
       console.log("Attempting to reset password");
-      const { data, error } = await supabase.auth.resetPassword(password);
+      const { data, error } = await supabase.auth.updateUser({
+        password: password
+      });
 
       if (error) throw error;
 
