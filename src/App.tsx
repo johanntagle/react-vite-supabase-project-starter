@@ -46,9 +46,8 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
-            <Route path="/auth" element={<Auth />} />
-            {/* Reset password route should not be protected */}
             <Route path="/auth/reset-password" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
           </Routes>
         </BrowserRouter>
