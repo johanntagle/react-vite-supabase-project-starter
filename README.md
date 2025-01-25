@@ -30,7 +30,7 @@ You can do the following:
 5. Copy over this project to your new project
 6. Push the changes to your new project back to Github.
 7. Lovable will pick up the changes
-8. Ask Lovable to connect the project to github and update the src/integrations/supabase/client.ts with your supabase url and key
+8. Ask Lovable to connect the project to Supabase and update the src/integrations/supabase/client.ts with your supabase url and key
 9. Run all the sqls in the supabase/migrations folder
 10. In Supabase, under Authentication -> URL Configuration, set the Site Url to your Lovable project preview URL. Also set one Redirect URL to https://your.preview.url/*
 11. Access the app and sign up a new user
