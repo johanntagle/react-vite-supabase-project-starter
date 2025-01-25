@@ -36,7 +36,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  console.log("App component rendered"); // Add logging to track component rendering
+  console.log("App component rendered");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -47,6 +47,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
             <Route path="/auth" element={<Auth />} />
+            {/* Reset password route should not be protected */}
             <Route path="/auth/reset-password" element={<Auth />} />
             <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
           </Routes>
