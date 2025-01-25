@@ -21,7 +21,6 @@ const Auth = () => {
 
   useEffect(() => {
     const handlePasswordReset = async () => {
-      // Check if we're on the reset password route
       const hash = window.location.hash;
       const params = new URLSearchParams(hash.replace('#', ''));
       const type = params.get('type');
@@ -133,12 +132,12 @@ const Auth = () => {
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
+      console.log("Attempting to reset password");
+      const { data, error } = await supabase.auth.resetPassword(password);
 
       if (error) throw error;
 
+      console.log("Password reset successful:", data);
       toast({
         title: "Success",
         description: "Your password has been reset successfully. Please sign in with your new password.",
@@ -147,6 +146,8 @@ const Auth = () => {
       // Clear the URL hash and redirect to login
       window.location.hash = '';
       navigate("/auth");
+      setIsResetPassword(false);
+      setIsLogin(true);
     } catch (error: any) {
       console.error("Password reset error:", error);
       toast({
