@@ -20,6 +20,8 @@ export const Navbar = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Session:", session);
+      
       if (session) {
         // Check admin status
         const { data: hasAdminRole } = await supabase.rpc('has_role', {
@@ -29,14 +31,25 @@ export const Navbar = () => {
         setIsAdmin(!!hasAdminRole);
 
         // Fetch user profile
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('full_name')
           .eq('id', session.user.id)
           .single();
         
+        console.log("Profile data:", profile);
+        console.log("Profile error:", error);
+        
         if (profile?.full_name) {
+          console.log("Setting full name:", profile.full_name);
           setFullName(profile.full_name);
+        } else {
+          // Fallback to metadata if profile fetch fails
+          const fullNameFromMeta = session.user.user_metadata?.full_name;
+          console.log("Falling back to metadata full name:", fullNameFromMeta);
+          if (fullNameFromMeta) {
+            setFullName(fullNameFromMeta);
+          }
         }
       }
     };
