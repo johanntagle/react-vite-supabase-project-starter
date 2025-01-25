@@ -98,6 +98,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
+              autoComplete="email"
             />
           </div>
 
@@ -111,6 +112,7 @@ const Auth = () => {
                 onChange={(e) => setFullName(e.target.value)}
                 required
                 placeholder="Enter your full name"
+                autoComplete="name"
               />
             </div>
           )}
@@ -124,6 +126,7 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
 
