@@ -21,7 +21,12 @@ const Auth = () => {
 
   useEffect(() => {
     // Check if we're on the reset password route
-    if (location.pathname.includes('/reset-password')) {
+    const hash = window.location.hash;
+    const isResetPasswordFlow = location.pathname.includes('reset-password') || 
+                               hash.includes('type=recovery');
+    
+    if (isResetPasswordFlow) {
+      console.log("Detected reset password flow");
       setIsResetPassword(true);
       setIsLogin(false);
       setIsForgotPassword(false);
@@ -136,6 +141,7 @@ const Auth = () => {
       });
       navigate("/");
     } catch (error: any) {
+      console.error("Password reset error:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -267,18 +273,18 @@ const Auth = () => {
               </div>
             )}
 
-            {isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                />
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+                autoComplete={isLogin ? "current-password" : "new-password"}
+              />
+              {isLogin && (
                 <div className="text-right">
                   <button
                     type="button"
@@ -288,23 +294,8 @@ const Auth = () => {
                     Forgot Password?
                   </button>
                 </div>
-              </div>
-            )}
-
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                  autoComplete="new-password"
-                />
-              </div>
-            )}
+              )}
+            </div>
 
             <Button
               type="submit"
