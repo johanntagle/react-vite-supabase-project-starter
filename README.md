@@ -4,11 +4,11 @@
 This is a base project that uses Supabase as the backend for authentication. This should get you started quickly and save you time and/or AI prompts.
 
 What works:
-• user sign up and login
-• two roles: user and admin
-• user editing and deletion by admin user
-• change password while logged on
-• reset forgotten password utility
+- user sign up and login
+- two roles: user and admin
+- user editing and deletion by admin user
+- change password while logged on
+- reset forgotten password utility
 
 **URL**: https://lovable.dev/projects/f691661f-8846-4fa7-8db0-c51f78f7db9c
 The above may not work in the future, as I might be disconnecting supabase from it.
