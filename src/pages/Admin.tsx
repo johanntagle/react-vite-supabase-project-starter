@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +24,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { UserForm } from "@/components/UserForm";
 
 type UserWithRole = {
   id: string;
@@ -36,8 +44,9 @@ const Admin = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserWithRole | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // Check if current user is admin
   useEffect(() => {
     const checkAdminStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -115,8 +124,14 @@ const Admin = () => {
   };
 
   const handleEditUser = (user: UserWithRole) => {
-    // Navigate to edit page with user ID
-    navigate(`/admin/users/${user.id}/edit`);
+    setSelectedUser(user);
+    setIsSheetOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsSheetOpen(false);
+    setSelectedUser(null);
+    refetch();
   };
 
   if (isAdmin === null || isLoading) {
@@ -129,7 +144,30 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="mb-8 text-3xl font-bold">User Management</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">User Management</h1>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button onClick={() => setSelectedUser(null)}>
+              <Plus className="h-4 w-4 mr-1" />
+              Add User
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>
+                {selectedUser ? "Edit User" : "Add New User"}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">
+              <UserForm
+                initialData={selectedUser || undefined}
+                onSuccess={handleFormSuccess}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -170,7 +208,8 @@ const Admin = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete User</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete {user.email}? This action cannot be undone.
+                          Are you sure you want to delete {user.email}? This action
+                          cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
