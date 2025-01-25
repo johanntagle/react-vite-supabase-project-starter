@@ -23,23 +23,16 @@ const Auth = () => {
     // Check if we're on the reset password route
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.replace('#', ''));
-    const accessToken = params.get('access_token');
     const type = params.get('type');
     
     const isResetPasswordFlow = location.pathname.includes('reset-password') && 
-                               type === 'recovery' &&
-                               accessToken;
+                               type === 'recovery';
     
     if (isResetPasswordFlow) {
       console.log("Detected reset password flow");
-      // Set the session with the recovery token
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
-          setIsResetPassword(true);
-          setIsLogin(false);
-          setIsForgotPassword(false);
-        }
-      });
+      setIsResetPassword(true);
+      setIsLogin(false);
+      setIsForgotPassword(false);
     }
   }, [location]);
 
@@ -139,6 +132,24 @@ const Auth = () => {
     }
 
     try {
+      // Get the access token from the URL
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const accessToken = params.get('access_token');
+
+      if (!accessToken) {
+        throw new Error("No access token found. Please use the reset link from your email.");
+      }
+
+      // Set the access token in the session
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: '',
+      });
+
+      if (sessionError) throw sessionError;
+
+      // Update the password
       const { error } = await supabase.auth.updateUser({
         password: password,
       });
@@ -147,11 +158,11 @@ const Auth = () => {
 
       toast({
         title: "Success",
-        description: "Your password has been reset successfully.",
+        description: "Your password has been reset successfully. Please sign in with your new password.",
       });
       
-      // Sign out after password reset to force re-login with new password
-      await supabase.auth.signOut();
+      // Clear the URL hash and redirect to login
+      window.location.hash = '';
       navigate("/auth");
     } catch (error: any) {
       console.error("Password reset error:", error);
