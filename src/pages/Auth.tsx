@@ -142,10 +142,8 @@ const Auth = () => {
         throw new Error("No access token found in URL");
       }
 
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash: access_token,
-        type: 'recovery',
-        new_password: password,
+      const { error } = await supabase.auth.updateUser({
+        password: password
       });
 
       if (error) throw error;
@@ -172,6 +170,8 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  // ... keep existing code (render method with form JSX)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
