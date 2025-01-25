@@ -145,7 +145,7 @@ const Auth = () => {
       const { error } = await supabase.auth.verifyOtp({
         token_hash: access_token,
         type: 'recovery',
-        password
+        new_password: password
       });
 
       if (error) throw error;
