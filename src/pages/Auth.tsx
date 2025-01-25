@@ -142,13 +142,20 @@ const Auth = () => {
         throw new Error("No access token found in URL");
       }
 
-      const { error } = await supabase.auth.verifyOtp({
+      // First verify the recovery token
+      const { error: verifyError } = await supabase.auth.verifyOtp({
         token_hash: access_token,
-        type: 'recovery',
-        new_password: password
+        type: 'recovery'
       });
 
-      if (error) throw error;
+      if (verifyError) throw verifyError;
+
+      // Then update the password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (updateError) throw updateError;
 
       console.log("Password reset successful");
       toast({
