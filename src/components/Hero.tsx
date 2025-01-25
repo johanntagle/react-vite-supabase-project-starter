@@ -11,7 +11,7 @@ export const Hero = () => {
           <div className="p-4 font-mono text-sm space-y-1 text-left">
             <div>This is a base project that uses Supabase as the backend for authentication. This should get you started quickly and save you time and/or AI prompts.</div>
             <br/>
-            <div>Source code at <a href="https://github.com/johanntagle/supabased-lovable" className="text-blue-500 hover:underline">Github</a>.</div>
+            <div>Source code at <a href="https://github.com/johanntagle/supabase-lovable-project-starter" className="text-blue-500 hover:underline">Github</a>.</div>
             <br/>       
             <div>It was built on the Lovable platform but you can use it without Lovable.</div>
             <div>Uses Supabase as the backend.</div>
