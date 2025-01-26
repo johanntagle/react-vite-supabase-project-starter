@@ -45,13 +45,33 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} data-component="Index" />
-            <Route path="/auth/reset-password" element={<Auth />} data-component="Auth" />
-            <Route path="/auth" element={<Auth />} data-component="Auth" />
+            <Route 
+              path="/" 
+              element={<Index />} 
+              data-component="Index"
+              data-component-name="Index"
+              data-component-file="./pages/Index"
+            />
+            <Route 
+              path="/auth/reset-password" 
+              element={<Auth />} 
+              data-component="Auth"
+              data-component-name="Auth"
+              data-component-file="./pages/Auth"
+            />
+            <Route 
+              path="/auth" 
+              element={<Auth />} 
+              data-component="Auth"
+              data-component-name="Auth"
+              data-component-file="./pages/Auth"
+            />
             <Route 
               path="/admin" 
               element={<PrivateRoute><Admin /></PrivateRoute>} 
-              data-component="Admin" 
+              data-component="Admin"
+              data-component-name="Admin"
+              data-component-file="./pages/Admin"
             />
           </Routes>
         </BrowserRouter>
