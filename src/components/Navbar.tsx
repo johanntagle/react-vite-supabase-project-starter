@@ -18,11 +18,14 @@ export const Navbar = () => {
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
   const [fullName, setFullName] = useState<string>("");
+  const [session, setSession] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       console.log("Session:", session);
+      
+      setSession(!!session);
       
       if (session) {
         // Check admin status
@@ -57,6 +60,18 @@ export const Navbar = () => {
     };
 
     fetchUserData();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(!!session);
+      if (!session) {
+        setFullName("");
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
@@ -78,7 +93,7 @@ export const Navbar = () => {
       <div className="container flex h-16 items-center">
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center space-x-2">
-          <a href="#features" className="nav-link">
+            <a href="#features" className="nav-link">
               Your
             </a>
             <a href="#features" className="nav-link">
@@ -102,21 +117,31 @@ export const Navbar = () => {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium">
-                  {fullName || 'Account'}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <ChangePasswordForm />
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-sm font-medium">
+                    {fullName || 'Account'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <ChangePasswordForm />
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="ghost" 
+                className="text-sm font-medium"
+                onClick={() => navigate("/auth")}
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </div>
